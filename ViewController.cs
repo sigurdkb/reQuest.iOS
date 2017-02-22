@@ -1,12 +1,13 @@
 ﻿using System;
+using CoreGraphics;
 using Foundation;
 using UIKit;
+using WebKit;
 
 namespace reQuest.iOS
 {
-	public partial class ViewController : UIViewController
+	public partial class ViewController : UIViewController, IWKNavigationDelegate, IWKScriptMessageHandler
 	{
-		//UIWebView webView;
 
 		protected ViewController(IntPtr handle) : base(handle)
 		{
@@ -20,21 +21,30 @@ namespace reQuest.iOS
 			Title = "reQuest";
 			View.BackgroundColor = UIColor.Black;
 
-			//webView = new UIWebView(View.Bounds);
-			//View.AddSubview(webView);
+			var config = new WKWebViewConfiguration();
+			config.UserContentController.AddScriptMessageHandler(this, "native");
 
-			var url = "http://agder-ikt85.uia.no"; // NOTE: https required for iOS 9 ATS (overidden in info.plist)
-			webView.LoadRequest(new NSUrlRequest(new NSUrl(url)));
+			//WKWebView webView = new WKWebView(new CGRect(0, 20, View.Frame.Width, View.Frame.Height - 20), config);
+			UIWebView webView = new UIWebView(new CGRect(0, 20, View.Frame.Width, View.Frame.Height - 20));
+			View.AddSubview(webView);
 
-			// if this is false, page will be 'zoomed in' to normal size
+			var url = new NSUrl("http://agder-ikt85.uia.no");
+			var request = new NSUrlRequest(url);
+			//webView.NavigationDelegate = this;
+			//webView.AllowsBackForwardNavigationGestures = true;
 			webView.ScalesPageToFit = true;
-
+			webView.LoadRequest(request);
 		}
 
 		public override void DidReceiveMemoryWarning()
 		{
 			base.DidReceiveMemoryWarning();
 			// Release any cached data, images, etc that aren't in use.
+		}
+
+		public void DidReceiveScriptMessage(WKUserContentController userContentController, WKScriptMessage message)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }
